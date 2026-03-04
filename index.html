@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Migration Readiness — ERP Modular</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;0,700;1,300&display=swap');
+
+  :root {
+    --navy:    #0F1F3D;
+    --navy2:   #1A3366;
+    --blue:    #1E4D8C;
+    --amber:   #E8A020;
+    --amberlt: #F5C842;
+    --red:     #C0392B;
+    --green:   #1A7A4A;
+    --white:   #FFFFFF;
+    --off:     #F2F4F8;
+    --gray:    #8899AA;
+    --graylt:  #DCE3EF;
+    --mono:    'IBM Plex Mono', monospace;
+    --sans:    'IBM Plex Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--navy);
+    color: var(--white);
+    min-height: 100vh;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    background: var(--navy2);
+    border-bottom: 3px solid var(--amber);
+    padding: 0 32px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 16px; }
+  .topbar-brand {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--amber);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .topbar-sep { width: 1px; height: 24px; background: #ffffff22; }
+  .topbar-title { font-size: 13px; color: var(--graylt); font-weight: 300; }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .btn-export {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 7px 16px;
+    background: var(--amber);
+    color: var(--navy);
+    border: none;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .btn-export:hover { background: var(--amberlt); }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 48px 32px 36px;
+    border-bottom: 1px solid #ffffff11;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .hero h1 {
+    font-family: var(--mono);
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 1.15;
+    color: var(--white);
+  }
+  .hero h1 span { color: var(--amber); }
+  .hero p {
+    margin-top: 10px;
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--graylt);
+    max-width: 560px;
+    line-height: 1.7;
+  }
+
+  /* Global score cards */
+  .score-cards {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .score-card {
+    background: #ffffff08;
+    border: 1px solid #ffffff15;
+    padding: 16px 22px;
+    min-width: 130px;
+    text-align: center;
+  }
+  .score-card .sc-num {
+    font-family: var(--mono);
+    font-size: 36px;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .score-card .sc-label {
+    margin-top: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gray);
+  }
+  .sc-num.red    { color: var(--red); }
+  .sc-num.amber  { color: var(--amber); }
+  .sc-num.green  { color: #2ECC71; }
+  .sc-num.white  { color: var(--white); }
+
+  /* ── FILTERS ── */
+  .filters {
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid #ffffff11;
+  }
+  .filter-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin-right: 4px;
+  }
+  .filter-btn {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 5px 14px;
+    background: transparent;
+    border: 1px solid #ffffff22;
+    color: var(--graylt);
+    cursor: pointer;
+    transition: all .15s;
+    letter-spacing: .5px;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    border-color: var(--amber);
+    color: var(--amber);
+    background: #E8A02011;
+  }
+  .search-wrap { margin-left: auto; }
+  .search-input {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: #ffffff08;
+    border: 1px solid #ffffff22;
+    color: var(--white);
+    padding: 7px 14px;
+    width: 220px;
+    outline: none;
+    transition: border-color .15s;
+  }
+  .search-input::placeholder { color: var(--gray); }
+  .search-input:focus { border-color: var(--amber); }
+
+  /* ── TABLE ── */
+  .table-wrap {
+    padding: 24px 32px 48px;
+  }
+
+  /* Portal section */
+  .portal-section { margin-bottom: 40px; }
+  .portal-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ffffff11;
+  }
+  .portal-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    background: var(--amber);
+    color: var(--navy);
+  }
+  .portal-name {
+    font-family: var(--mono);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--white);
+  }
+  .portal-count {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--gray);
+    margin-left: auto;
+  }
+
+  /* Module cards grid */
+  .modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 12px;
+  }
+
+  .module-card {
+    background: #ffffff06;
+    border: 1px solid #ffffff12;
+    transition: border-color .2s, background .2s;
+    overflow: hidden;
+  }
+  .module-card:hover { border-color: #ffffff28; background: #ffffff0a; }
+  .module-card.expanded { border-color: var(--amber); }
+
+  .module-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .criticality-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-critical { background: var(--red); box-shadow: 0 0 6px #C0392B88; }
+  .dot-high     { background: var(--amber); box-shadow: 0 0 6px #E8A02088; }
+  .dot-medium   { background: #3498DB; box-shadow: 0 0 6px #3498DB88; }
+  .dot-low      { background: #2ECC71; box-shadow: 0 0 6px #2ECC7188; }
+
+  .module-name {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--white);
+    flex: 1;
+  }
+  .module-status-badge {
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 8px;
+  }
+  .badge-nao-iniciado { background: #ffffff15; color: var(--gray); }
+  .badge-em-analise   { background: #3498DB22; color: #3498DB; border: 1px solid #3498DB44; }
+  .badge-pronto       { background: #2ECC7122; color: #2ECC71; border: 1px solid #2ECC7144; }
+  .badge-bloqueado    { background: #C0392B22; color: var(--red); border: 1px solid #C0392B44; }
+
+  .expand-icon {
+    font-size: 10px;
+    color: var(--gray);
+    transition: transform .2s;
+    font-family: var(--mono);
+  }
+  .module-card.expanded .expand-icon { transform: rotate(180deg); }
+
+  /* Form inside card */
+  .module-form {
+    display: none;
+    padding: 0 14px 16px;
+    border-top: 1px solid #ffffff10;
+    margin-top: 2px;
+    padding-top: 14px;
+  }
+  .module-card.expanded .module-form { display: block; }
+
+  .form-row { margin-bottom: 14px; }
+  .form-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .form-select, .form-input, .form-textarea {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: #ffffff08;
+    border: 1px solid #ffffff18;
+    color: var(--white);
+    padding: 7px 10px;
+    width: 100%;
+    outline: none;
+    transition: border-color .15s;
+    appearance: none;
+  }
+  .form-select:focus, .form-input:focus, .form-textarea:focus { border-color: var(--amber); }
+  .form-textarea { resize: vertical; min-height: 60px; line-height: 1.5; }
+  .form-select option { background: var(--navy2); }
+
+  .form-two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* Checklist items */
+  .checklist { display: flex; flex-direction: column; gap: 6px; }
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    cursor: pointer;
+    padding: 6px 8px;
+    border: 1px solid transparent;
+    transition: border-color .15s, background .15s;
+  }
+  .check-item:hover { border-color: #ffffff15; background: #ffffff06; }
+  .check-item input[type=checkbox] {
+    accent-color: var(--amber);
+    width: 14px; height: 14px;
+    margin-top: 1px;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .check-item-label {
+    font-size: 12px;
+    color: var(--graylt);
+    line-height: 1.4;
+  }
+  .check-item input:checked + .check-item-label { color: var(--white); }
+
+  /* Score bar */
+  .score-bar-wrap { margin-top: 14px; }
+  .score-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--gray);
+    margin-bottom: 5px;
+  }
+  .score-bar-track {
+    height: 4px;
+    background: #ffffff15;
+    position: relative;
+  }
+  .score-bar-fill {
+    height: 100%;
+    background: var(--amber);
+    transition: width .4s ease;
+  }
+
+  /* Tags input for integrations */
+  .tags-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+  }
+  .tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 10px;
+    background: var(--navy2);
+    border: 1px solid #ffffff18;
+    color: var(--graylt);
+    cursor: pointer;
+    transition: all .15s;
+    letter-spacing: .5px;
+  }
+  .tag.selected {
+    background: #E8A02022;
+    border-color: var(--amber);
+    color: var(--amber);
+  }
+
+  /* Save button */
+  .btn-save {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 8px 20px;
+    background: transparent;
+    border: 1px solid var(--amber);
+    color: var(--amber);
+    cursor: pointer;
+    width: 100%;
+    margin-top: 14px;
+    transition: all .15s;
+  }
+  .btn-save:hover { background: var(--amber); color: var(--navy); }
+  .btn-save.saved { background: #2ECC7122; border-color: #2ECC71; color: #2ECC71; }
+
+  /* Progress ring on header */
+  .progress-mini {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--gray);
+    margin-left: 4px;
+  }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 0 32px 20px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--gray); }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* Hidden */
+  .hidden { display: none !important; }
+
+  /* Notification toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--navy2);
+    border: 1px solid var(--amber);
+    border-left: 3px solid var(--amber);
+    padding: 12px 20px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--white);
+    z-index: 999;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all .3s ease;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--navy); }
+  ::-webkit-scrollbar-thumb { background: var(--navy2); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--amber); }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-brand">Teck Soluções</span>
+    <div class="topbar-sep"></div>
+    <span class="topbar-title">Migration Readiness Checklist — ERP Modular</span>
+  </div>
+  <div class="topbar-right">
+    <span id="last-saved" style="font-family:var(--mono);font-size:11px;color:var(--gray);">Não salvo</span>
+    <button class="btn-export" onclick="exportJSON()">↓ Exportar JSON</button>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div>
+    <h1>Migration<br><span>Readiness</span></h1>
+    <p>Preencha o checklist para cada módulo. O objetivo é mapear criticidade, estado atual do desenvolvimento e prontidão para migração ao novo ERP Modular.</p>
+  </div>
+  <div class="score-cards">
+    <div class="score-card">
+      <div class="sc-num white" id="sc-total">0</div>
+      <div class="sc-label">Módulos</div>
+    </div>
+    <div class="score-card">
+      <div class="sc-num red" id="sc-critical">0</div>
+      <div class="sc-label">Críticos</div>
+    </div>
+    <div class="score-card">
+      <div class="sc-num green" id="sc-ready">0</div>
+      <div class="sc-label">Prontos</div>
+    </div>
+    <div class="score-card">
+      <div class="sc-num amber" id="sc-filled">0</div>
+      <div class="sc-label">Preenchidos</div>
+    </div>
+  </div>
+</div>
+
+<!-- FILTERS -->
+<div class="filters">
+  <span class="filter-label">Filtrar:</span>
+  <button class="filter-btn active" onclick="setFilter('all', this)">Todos</button>
+  <button class="filter-btn" onclick="setFilter('critical', this)">🔴 Crítico</button>
+  <button class="filter-btn" onclick="setFilter('high', this)">🟡 Alto</button>
+  <button class="filter-btn" onclick="setFilter('medium', this)">🔵 Médio</button>
+  <button class="filter-btn" onclick="setFilter('low', this)">🟢 Baixo</button>
+  <button class="filter-btn" onclick="setFilter('bloqueado', this)">⛔ Bloqueado</button>
+  <button class="filter-btn" onclick="setFilter('pronto', this)">✅ Pronto</button>
+  <button class="filter-btn" onclick="setFilter('nao-preenchido', this)">⬜ Não preenchido</button>
+  <div class="search-wrap">
+    <input class="search-input" type="text" placeholder="Buscar módulo..." oninput="searchModules(this.value)">
+  </div>
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div> Crítico — falha = impacto direto no negócio</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div> Alto — importante mas com fallback</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#3498DB"></div> Médio — operação auxiliar</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#2ECC71"></div> Baixo — pode aguardar migração</div>
+</div>
+
+<!-- TABLE -->
+<div class="table-wrap" id="modules-container"></div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA (carregada do backend) ────────────────────────────
+let PORTALS = [];
+let INTEGRATIONS = [];
+let BOUNDED_CONTEXTS = [];
+let CHECKLIST_ITEMS = [];
+
+async function loadData() {
+  try {
+    const res = await fetch('/api/data');
+    if (!res.ok) throw new Error('Erro ao carregar /api/data');
+    const data = await res.json();
+    PORTALS = data.portals || [];
+    INTEGRATIONS = data.integrations || [];
+    BOUNDED_CONTEXTS = data.boundedContexts || [];
+    CHECKLIST_ITEMS = data.checklistItems || [];
+  } catch (e) {
+    console.error('Falha ao carregar dados do backend', e);
+    showToast('Erro ao carregar dados base (portais, integrações, etc.)');
+  }
+}
+
+// ── STATE ─────────────────────────────────────────────────
+let state = {};
+let currentFilter = 'all';
+let currentSearch = '';
+
+// Carrega estado do backend (SQLite) com fallback para localStorage
+async function loadState() {
+  try {
+    const res = await fetch('/api/state');
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.state) {
+        state = data.state;
+      }
+      if (data && data.lastSaved) {
+        document.getElementById('last-saved').textContent = `Carregado em ${data.lastSaved}`;
+      }
+      return;
+    }
+  } catch (e) {
+    // Se der erro (servidor offline, etc.), cai para localStorage
+  }
+
+  try {
+    const s = localStorage.getItem('migration_checklist');
+    if (s) state = JSON.parse(s);
+  } catch(e) {}
+}
+
+// Salva estado no backend (SQLite) com fallback para localStorage
+async function saveState() {
+  try {
+    const res = await fetch('/api/state', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ state })
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      const ts = data && data.lastSaved ? data.lastSaved : null;
+      if (ts) {
+        document.getElementById('last-saved').textContent = `Salvo em ${ts}`;
+      } else {
+        const now = new Date();
+        document.getElementById('last-saved').textContent =
+          `Salvo às ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+      }
+      showToast('✓ Módulo salvo com sucesso');
+      return;
+    }
+  } catch(e) {
+    // Se der erro na API, tenta salvar localmente
+  }
+
+  try {
+    localStorage.setItem('migration_checklist', JSON.stringify(state));
+    const now = new Date();
+    document.getElementById('last-saved').textContent =
+      `Salvo localmente às ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+    showToast('✓ Módulo salvo localmente (offline)');
+  } catch(e2) {}
+}
+
+function getModuleState(id) {
+  return state[id] || {
+    criticality: '',
+    migration_status: '',
+    bounded_context: '',
+    responsible: '',
+    integrations: [],
+    checklist: [],
+    notes: '',
+    ready_score: 0,
+  };
+}
+
+// ── RENDER ────────────────────────────────────────────────
+function render() {
+  const container = document.getElementById('modules-container');
+  container.innerHTML = '';
+
+  PORTALS.forEach(portal => {
+    const filtered = portal.modules.filter(m => matchesFilter(m) && matchesSearch(m));
+    if (filtered.length === 0) return;
+
+    const section = document.createElement('div');
+    section.className = 'portal-section';
+    section.innerHTML = `
+      <div class="portal-header">
+        <span class="portal-tag">Portal</span>
+        <span class="portal-name">${portal.name}</span>
+        <span class="portal-count">${filtered.length} módulo${filtered.length !== 1 ? 's' : ''}</span>
+      </div>
+      <div class="modules-grid" id="grid-${portal.id}"></div>
+    `;
+    container.appendChild(section);
+
+    const grid = section.querySelector(`#grid-${portal.id}`);
+    filtered.forEach(mod => {
+      grid.appendChild(buildCard(mod));
+    });
+  });
+
+  updateScores();
+}
+
+function matchesFilter(mod) {
+  const ms = getModuleState(mod.id);
+  if (currentFilter === 'all') return true;
+  if (currentFilter === 'critical')   return ms.criticality === 'critical';
+  if (currentFilter === 'high')       return ms.criticality === 'high';
+  if (currentFilter === 'medium')     return ms.criticality === 'medium';
+  if (currentFilter === 'low')        return ms.criticality === 'low';
+  if (currentFilter === 'bloqueado')  return ms.migration_status === 'bloqueado';
+  if (currentFilter === 'pronto')     return ms.migration_status === 'pronto';
+  if (currentFilter === 'nao-preenchido') return !ms.criticality;
+  return true;
+}
+
+function matchesSearch(mod) {
+  if (!currentSearch) return true;
+  return mod.name.toLowerCase().includes(currentSearch.toLowerCase());
+}
+
+function buildCard(mod) {
+  const ms = getModuleState(mod.id);
+  const card = document.createElement('div');
+  card.className = 'module-card';
+  card.id = `card-${mod.id}`;
+
+  const critClass = ms.criticality ? `dot-${ms.criticality}` : 'dot-low';
+  const critColor = {critical:'var(--red)',high:'var(--amber)',medium:'#3498DB',low:'#2ECC71'}[ms.criticality] || '#ffffff33';
+
+  const statusMap = {
+    'nao-iniciado': ['badge-nao-iniciado','Não iniciado'],
+    'em-analise':   ['badge-em-analise','Em análise'],
+    'pronto':       ['badge-pronto','Pronto'],
+    'bloqueado':    ['badge-bloqueado','Bloqueado'],
+  };
+  const [badgeClass, badgeText] = statusMap[ms.migration_status] || ['badge-nao-iniciado','—'];
+
+  const score = calcScore(mod.id);
+  const filled = ms.criticality || ms.migration_status || ms.notes || ms.checklist.length > 0;
+
+  card.innerHTML = `
+    <div class="module-header" onclick="toggleCard('${mod.id}')">
+      <div class="criticality-dot ${critClass}"></div>
+      <span class="module-name">${mod.name}</span>
+      ${filled ? `<span style="font-family:var(--mono);font-size:10px;color:${critColor}">▮${score}%</span>` : ''}
+      <span class="module-status-badge ${badgeClass}">${badgeText}</span>
+      <span class="expand-icon">▼</span>
+    </div>
+    <div class="module-form" id="form-${mod.id}">
+      <div class="form-two-col">
+        <div class="form-row">
+          <label class="form-label">Criticidade</label>
+          <select class="form-select" onchange="updateField('${mod.id}','criticality',this.value)">
+            <option value="">— selecione —</option>
+            <option value="critical" ${ms.criticality==='critical'?'selected':''}>🔴 Crítico</option>
+            <option value="high"     ${ms.criticality==='high'?'selected':''}>🟡 Alto</option>
+            <option value="medium"   ${ms.criticality==='medium'?'selected':''}>🔵 Médio</option>
+            <option value="low"      ${ms.criticality==='low'?'selected':''}>🟢 Baixo</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Status de Migração</label>
+          <select class="form-select" onchange="updateField('${mod.id}','migration_status',this.value)">
+            <option value="">— selecione —</option>
+            <option value="nao-iniciado" ${ms.migration_status==='nao-iniciado'?'selected':''}>Não iniciado</option>
+            <option value="em-analise"   ${ms.migration_status==='em-analise'?'selected':''}>Em análise</option>
+            <option value="pronto"       ${ms.migration_status==='pronto'?'selected':''}>Pronto p/ migrar</option>
+            <option value="bloqueado"    ${ms.migration_status==='bloqueado'?'selected':''}>Bloqueado</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-two-col">
+        <div class="form-row">
+          <label class="form-label">Bounded Context de Destino</label>
+          <select class="form-select" onchange="updateField('${mod.id}','bounded_context',this.value)">
+            <option value="">— selecione —</option>
+            ${BOUNDED_CONTEXTS.map(bc => `<option value="${bc}" ${ms.bounded_context===bc?'selected':''}>${bc}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Responsável Técnico</label>
+          <input class="form-input" type="text" placeholder="Nome do dev / TL"
+            value="${ms.responsible}"
+            onchange="updateField('${mod.id}','responsible',this.value)">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">Integrações Externas</label>
+        <div class="tags-wrap" id="tags-${mod.id}">
+          ${INTEGRATIONS.map(intg => `
+            <span class="tag ${ms.integrations.includes(intg)?'selected':''}"
+              onclick="toggleIntegration('${mod.id}','${intg}',this)">${intg}</span>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">Checklist de Prontidão</label>
+        <div class="checklist">
+          ${CHECKLIST_ITEMS.map(ci => `
+            <label class="check-item">
+              <input type="checkbox" ${ms.checklist.includes(ci.id)?'checked':''}
+                onchange="toggleChecklist('${mod.id}','${ci.id}',this.checked)">
+              <span class="check-item-label">${ci.label}</span>
+            </label>
+          `).join('')}
+        </div>
+        <div class="score-bar-wrap">
+          <div class="score-bar-label">
+            <span>Prontidão</span>
+            <span id="score-label-${mod.id}">${ms.checklist.length}/${CHECKLIST_ITEMS.length}</span>
+          </div>
+          <div class="score-bar-track">
+            <div class="score-bar-fill" id="score-bar-${mod.id}"
+              style="width:${(ms.checklist.length/CHECKLIST_ITEMS.length)*100}%"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">Observações / Riscos</label>
+        <textarea class="form-textarea" placeholder="Descreva dependências críticas, riscos de migração, débito técnico relevante..."
+          onchange="updateField('${mod.id}','notes',this.value)">${ms.notes}</textarea>
+      </div>
+
+      <button class="btn-save ${ms.criticality?'':''}  " onclick="saveModule('${mod.id}')">
+        Salvar módulo
+      </button>
+    </div>
+  `;
+
+  return card;
+}
+
+// ── INTERACTIONS ──────────────────────────────────────────
+function toggleCard(id) {
+  const card = document.getElementById(`card-${id}`);
+  card.classList.toggle('expanded');
+}
+
+function updateField(id, field, value) {
+  if (!state[id]) state[id] = getModuleState(id);
+  state[id][field] = value;
+}
+
+function toggleIntegration(id, intg, el) {
+  if (!state[id]) state[id] = getModuleState(id);
+  const list = state[id].integrations;
+  const idx = list.indexOf(intg);
+  if (idx === -1) { list.push(intg); el.classList.add('selected'); }
+  else { list.splice(idx, 1); el.classList.remove('selected'); }
+}
+
+function toggleChecklist(id, item, checked) {
+  if (!state[id]) state[id] = getModuleState(id);
+  const list = state[id].checklist;
+  const idx = list.indexOf(item);
+  if (checked && idx === -1) list.push(item);
+  if (!checked && idx !== -1) list.splice(idx, 1);
+  updateScoreBar(id);
+}
+
+function updateScoreBar(id) {
+  const ms = getModuleState(id);
+  const pct = (ms.checklist.length / CHECKLIST_ITEMS.length) * 100;
+  const bar = document.getElementById(`score-bar-${id}`);
+  const lbl = document.getElementById(`score-label-${id}`);
+  if (bar) bar.style.width = pct + '%';
+  if (lbl) lbl.textContent = `${ms.checklist.length}/${CHECKLIST_ITEMS.length}`;
+}
+
+function calcScore(id) {
+  const ms = getModuleState(id);
+  let pts = 0;
+  if (ms.criticality)        pts += 20;
+  if (ms.migration_status)   pts += 20;
+  if (ms.bounded_context)    pts += 20;
+  if (ms.responsible)        pts += 10;
+  pts += Math.round((ms.checklist.length / CHECKLIST_ITEMS.length) * 30);
+  return pts;
+}
+
+async function saveModule(id) {
+  if (!state[id]) state[id] = getModuleState(id);
+  await saveState();
+  // Re-render just this card
+  const ms = getModuleState(id);
+  const btn = document.querySelector(`#card-${id} .btn-save`);
+  if (btn) {
+    btn.textContent = '✓ Salvo';
+    btn.classList.add('saved');
+    setTimeout(() => {
+      btn.textContent = 'Salvar módulo';
+      btn.classList.remove('saved');
+    }, 2000);
+  }
+  updateScores();
+}
+
+// ── SCORES ────────────────────────────────────────────────
+function updateScores() {
+  const all = PORTALS.flatMap(p => p.modules);
+  const total = all.length;
+  let critical = 0, ready = 0, filled = 0;
+  all.forEach(m => {
+    const ms = getModuleState(m.id);
+    if (ms.criticality === 'critical') critical++;
+    if (ms.migration_status === 'pronto') ready++;
+    if (ms.criticality || ms.migration_status || ms.notes || ms.checklist.length > 0) filled++;
+  });
+  document.getElementById('sc-total').textContent    = total;
+  document.getElementById('sc-critical').textContent = critical;
+  document.getElementById('sc-ready').textContent    = ready;
+  document.getElementById('sc-filled').textContent   = filled;
+}
+
+// ── FILTERS ───────────────────────────────────────────────
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function searchModules(val) {
+  currentSearch = val;
+  render();
+}
+
+// ── EXPORT ────────────────────────────────────────────────
+function exportJSON() {
+  const out = [];
+  PORTALS.forEach(portal => {
+    portal.modules.forEach(mod => {
+      const ms = getModuleState(mod.id);
+      out.push({
+        portal: portal.name,
+        module: mod.name,
+        id: mod.id,
+        ...ms,
+        readiness_score: calcScore(mod.id) + '%',
+      });
+    });
+  });
+  const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'migration_readiness_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('✓ JSON exportado com sucesso');
+}
+
+// ── TOAST ─────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── INIT ──────────────────────────────────────────────────
+(async function init() {
+  await loadData();
+  await loadState();
+  render();
+})();
+</script>
+</body>
+</html>
